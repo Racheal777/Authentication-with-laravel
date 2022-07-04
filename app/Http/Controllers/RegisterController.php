@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
-    public function register(Request $request)
+    public function register(UserRequest $request)
     {
         $user = new User();
         $user->name = $request->input('name');
@@ -20,7 +23,13 @@ class RegisterController extends Controller
 
         $object = $token->accessToken;
 
-        return $object;
+        
+        
+        //return $object;
+        return response()->json([
+            'token' => $object,
+            'user' => new UserResource($user)
+        ]);
     }
 
         //function for looging
@@ -36,8 +45,8 @@ class RegisterController extends Controller
             $token = auth()->user()->createToken($user->name);
 
             return response()->json([
-               'token' => $token,
-               'user_details' => $user
+               'token' => $token->accessToken,
+               'user_details' => new UserResource($user)
             ]);
         } else {
             return response()->json([
